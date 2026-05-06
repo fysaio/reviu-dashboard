@@ -18,10 +18,34 @@ export default function DashboardClient({ session }: { session: any }) {
     const isEnabled = repo.settings?.enabled
 
     if (!isEnabled) {
-      window.location.href = `https://github.com/apps/ai-pr-reviewer-dev/installations/new`
+      if (!repo.app_installed) {
+        // App not installed on this repo -- send to GitHub install flow
+        window.location.href = `https://github.com/apps/ai-pr-reviewer-dev/installations/new`
+        return
+      }
+
+      // App already installed -- just write to Supabase
+      setSaving(repo.full_name)
+      await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          repo_full_name: repo.full_name,
+          review_mode: "junior",
+          confidence_threshold: 70,
+          enabled: true,
+        }),
+      })
+      setRepos(prev => prev.map(r =>
+        r.full_name === repo.full_name
+          ? { ...r, settings: { ...r.settings, enabled: true } }
+          : r
+      ))
+      setSaving(null)
       return
     }
 
+    // Disable
     setSaving(repo.full_name)
     await fetch("/api/settings", {
       method: "POST",
@@ -30,12 +54,12 @@ export default function DashboardClient({ session }: { session: any }) {
         repo_full_name: repo.full_name,
         review_mode: repo.settings?.review_mode || "junior",
         confidence_threshold: repo.settings?.confidence_threshold || 70,
-        enabled: !isEnabled,
+        enabled: false,
       }),
     })
     setRepos(prev => prev.map(r =>
       r.full_name === repo.full_name
-        ? { ...r, settings: { ...r.settings, enabled: !isEnabled } }
+        ? { ...r, settings: { ...r.settings, enabled: false } }
         : r
     ))
     setSaving(null)
