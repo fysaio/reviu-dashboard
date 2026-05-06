@@ -1,65 +1,114 @@
-import Image from "next/image";
+import { auth, signIn } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
-export default function Home() {
+export default async function LandingPage() {
+  const session = await auth()
+  if (session) redirect("/dashboard")
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      {/* Nav */}
+      <nav style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "20px 40px", borderBottom: "1px solid var(--border)",
+        position: "sticky", top: 0, background: "rgba(8,11,15,0.9)",
+        backdropFilter: "blur(12px)", zIndex: 50,
+      }}>
+        <span style={{ fontFamily: "Syne", fontWeight: 800, fontSize: "20px", letterSpacing: "-0.5px" }}>
+          Reviu<span style={{ color: "var(--accent)" }}>.</span>
+        </span>
+        <form action={async () => { "use server"; await signIn("github", { redirectTo: "/dashboard" }) }}>
+          <button type="submit" style={{
+            background: "var(--accent)", color: "#000", fontWeight: 600,
+            padding: "8px 20px", borderRadius: "8px", fontSize: "14px",
+            fontFamily: "DM Sans",
+          }}>
+            Sign in with GitHub
+          </button>
+        </form>
+      </nav>
+
+      {/* Hero */}
+      <section style={{
+        flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
+        justifyContent: "center", padding: "80px 24px", textAlign: "center",
+        maxWidth: "800px", margin: "0 auto",
+      }}>
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: "8px",
+          padding: "6px 14px", borderRadius: "100px",
+          border: "1px solid var(--accent-border)",
+          background: "var(--accent-dim)", marginBottom: "32px",
+        }}>
+          <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--accent)", display: "inline-block" }} />
+          <span style={{ fontSize: "13px", color: "var(--accent)", fontFamily: "JetBrains Mono" }}>
+            AI-powered · Context-aware · African-built
+          </span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <h1 style={{
+          fontFamily: "Syne", fontWeight: 800, fontSize: "clamp(40px, 8vw, 72px)",
+          lineHeight: 1.05, letterSpacing: "-2px", marginBottom: "24px",
+        }}>
+          Code review that<br />
+          <span style={{ color: "var(--accent)" }}>actually understands</span><br />
+          your codebase
+        </h1>
+
+        <p style={{
+          fontSize: "18px", color: "var(--text-dim)", lineHeight: 1.7,
+          maxWidth: "560px", marginBottom: "48px",
+        }}>
+          Reviu indexes your entire repo, verifies PR intent against descriptions,
+          and reviews code with junior or senior mode — posting findings directly to your PRs.
+        </p>
+
+        <form action={async () => { "use server"; await signIn("github", { redirectTo: "/dashboard" }) }}>
+          <button type="submit" style={{
+            background: "var(--accent)", color: "#000", fontWeight: 700,
+            padding: "14px 32px", borderRadius: "10px", fontSize: "16px",
+            fontFamily: "Syne", letterSpacing: "-0.3px",
+            boxShadow: "0 0 40px rgba(240,165,0,0.2)",
+          }}>
+            Connect GitHub — it&apos;s free
+          </button>
+        </form>
+
+        {/* Features */}
+        <div style={{
+          display: "grid", gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "16px", marginTop: "80px", width: "100%",
+        }}>
+          {[
+            { icon: "⚡", title: "Instant setup", desc: "Connect a repo in 30 seconds. No config files." },
+            { icon: "🧠", title: "RAG context", desc: "Indexes your entire codebase. Catches cross-file bugs." },
+            { icon: "🎯", title: "Intent check", desc: "Verifies your PR does what the description claims." },
+          ].map((f) => (
+            <div key={f.title} style={{
+              padding: "24px", border: "1px solid var(--border)",
+              borderRadius: "var(--radius)", background: "var(--bg-card)",
+              textAlign: "left",
+            }}>
+              <div style={{ fontSize: "24px", marginBottom: "12px" }}>{f.icon}</div>
+              <div style={{ fontFamily: "Syne", fontWeight: 700, fontSize: "15px", marginBottom: "8px" }}>{f.title}</div>
+              <div style={{ fontSize: "14px", color: "var(--text-dim)", lineHeight: 1.6 }}>{f.desc}</div>
+            </div>
+          ))}
         </div>
-      </main>
-    </div>
-  );
+      </section>
+
+      {/* Footer */}
+      <footer style={{
+        padding: "24px 40px", borderTop: "1px solid var(--border)",
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+      }}>
+        <span style={{ fontFamily: "Syne", fontWeight: 700, fontSize: "15px" }}>
+          Reviu<span style={{ color: "var(--accent)" }}>.</span>
+        </span>
+        <span style={{ fontSize: "13px", color: "var(--text-muted)", fontFamily: "JetBrains Mono" }}>
+          Built by 0xPermission Labs · Lagos
+        </span>
+      </footer>
+    </main>
+  )
 }
