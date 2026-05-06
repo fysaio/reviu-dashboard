@@ -17,35 +17,13 @@ export default function DashboardClient({ session }: { session: any }) {
   const toggleRepo = async (repo: any) => {
     const isEnabled = repo.settings?.enabled
 
-    if (!isEnabled) {
-      if (!repo.app_installed) {
-        // App not installed on this repo -- send to GitHub install flow
-        window.location.href = `https://github.com/apps/ai-pr-reviewer-dev/installations/new`
-        return
-      }
-
-      // App already installed -- just write to Supabase
-      setSaving(repo.full_name)
-      await fetch("/api/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          repo_full_name: repo.full_name,
-          review_mode: "junior",
-          confidence_threshold: 70,
-          enabled: true,
-        }),
-      })
-      setRepos(prev => prev.map(r =>
-        r.full_name === repo.full_name
-          ? { ...r, settings: { ...r.settings, enabled: true } }
-          : r
-      ))
-      setSaving(null)
+    if (!isEnabled && repo.app_installed === false) {
+      // App is explicitly not installed on this repo -- send to GitHub install flow
+      window.location.href = `https://github.com/apps/ai-pr-reviewer-dev/installations/new`
       return
     }
 
-    // Disable
+    // App is installed (or status unknown) -- write directly to Supabase
     setSaving(repo.full_name)
     await fetch("/api/settings", {
       method: "POST",
@@ -54,12 +32,12 @@ export default function DashboardClient({ session }: { session: any }) {
         repo_full_name: repo.full_name,
         review_mode: repo.settings?.review_mode || "junior",
         confidence_threshold: repo.settings?.confidence_threshold || 70,
-        enabled: false,
+        enabled: !isEnabled,
       }),
     })
     setRepos(prev => prev.map(r =>
       r.full_name === repo.full_name
-        ? { ...r, settings: { ...r.settings, enabled: false } }
+        ? { ...r, settings: { ...r.settings, enabled: !isEnabled } }
         : r
     ))
     setSaving(null)
@@ -126,7 +104,10 @@ export default function DashboardClient({ session }: { session: any }) {
         />
 
         {loading && (
-          <div style={{ textAlign: "center", padding: "60px", color: "var(--text-muted)", fontFamily: "JetBrains Mono", fontSize: "13px" }}>
+          <div style={{
+            textAlign: "center", padding: "60px",
+            color: "var(--text-muted)", fontFamily: "JetBrains Mono", fontSize: "13px",
+          }}>
             Loading repositories...
           </div>
         )}
@@ -163,7 +144,11 @@ export default function DashboardClient({ session }: { session: any }) {
   )
 }
 
-function RepoCard({ repo, saving, onToggle }: { repo: any; saving: string | null; onToggle: (r: any) => void }) {
+function RepoCard({ repo, saving, onToggle }: {
+  repo: any
+  saving: string | null
+  onToggle: (r: any) => void
+}) {
   const isEnabled = repo.settings?.enabled
   const isSaving = saving === repo.full_name
 
@@ -194,10 +179,7 @@ function RepoCard({ repo, saving, onToggle }: { repo: any; saving: string | null
             </span>
           )}
           {repo.language && (
-            <span style={{
-              fontSize: "11px", fontFamily: "JetBrains Mono",
-              color: "var(--accent)",
-            }}>
+            <span style={{ fontSize: "11px", fontFamily: "JetBrains Mono", color: "var(--accent)" }}>
               {repo.language}
             </span>
           )}
