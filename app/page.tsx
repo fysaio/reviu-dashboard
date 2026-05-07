@@ -1,6 +1,10 @@
-import { signIn } from "@/lib/auth"
+import { auth, signIn } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const session = await auth()
+  if (session) redirect("/dashboard")
+
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh" }}>
 
