@@ -2,8 +2,8 @@ import type { Metadata } from "next"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Reviu — AI PR Reviewer",
-  description: "Agentic code review that knows your codebase. Junior/senior mode, intent verification, confidence scoring.",
+  title: "Reviu — Code review that reads your codebase",
+  description: "AI-powered PR reviews with full RAG context, intent verification, and confidence scoring.",
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
