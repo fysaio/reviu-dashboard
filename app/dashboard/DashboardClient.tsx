@@ -195,6 +195,14 @@ export default function DashboardClient({ session }: { session: any }) {
             <img src={session.user.image} alt="" style={{ width: 26, height: 26, borderRadius: "50%", border: "0.5px solid var(--border)" }} />
           )}
           <span style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>{session?.user?.name}</span>
+          <Link href="/analytics" style={{
+            fontSize: 12, color: "var(--text-muted)", padding: "6px 14px",
+            border: "0.5px solid var(--border)", borderRadius: "var(--radius-sm)",
+            display: "flex", alignItems: "center", gap: 5,
+          }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            Analytics
+          </Link>
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
             style={{
