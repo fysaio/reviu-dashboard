@@ -117,14 +117,14 @@ export default function AnalyticsClient() {
 
   // Pass/fail ratio
   const verdictData = useMemo(() => {
-    let pass = 0, fail = 0
+    let clean = 0, flagged = 0
     reviews.forEach(r => {
-      if (r.verdict === "pass") pass++
-      else if (r.verdict === "fail") fail++
+      if (r.verdict === "pass" || r.verdict === "clean") clean++
+      else if (r.verdict === "fail" || r.verdict === "flagged") flagged++
     })
     return [
-      { name: "Pass", value: pass, color: COLORS.green },
-      { name: "Fail", value: fail, color: COLORS.red },
+      { name: "Clean", value: clean, color: COLORS.green },
+      { name: "Flagged", value: flagged, color: COLORS.red },
     ].filter(d => d.value > 0)
   }, [reviews])
 
@@ -132,14 +132,14 @@ export default function AnalyticsClient() {
   const stats = useMemo(() => {
     const totalReviews = reviews.length
     const totalFindings = reviews.reduce((s, r) => s + r.diff_findings + r.context_findings, 0)
-    const passRate = totalReviews > 0
-      ? Math.round((reviews.filter(r => r.verdict === "pass").length / totalReviews) * 100)
+    const cleanRate = totalReviews > 0
+      ? Math.round((reviews.filter(r => r.verdict === "pass" || r.verdict === "clean").length / totalReviews) * 100)
       : 0
     const uniqueRepos = new Set(reviews.map(r => r.repo_full_name)).size
     return [
       { value: String(totalReviews), label: "total reviews" },
       { value: String(totalFindings), label: "total findings" },
-      { value: `${passRate}%`, label: "pass rate" },
+      { value: `${cleanRate}%`, label: "clean rate" },
       { value: String(uniqueRepos), label: "repos reviewed" },
     ]
   }, [reviews])
@@ -361,14 +361,17 @@ export default function AnalyticsClient() {
                         <td style={{ padding: "9px 10px", fontFamily: "var(--font-mono)", color: r.diff_findings > 0 ? COLORS.red : COLORS.textFaint }}>{r.diff_findings}</td>
                         <td style={{ padding: "9px 10px", fontFamily: "var(--font-mono)", color: r.context_findings > 0 ? COLORS.orange : COLORS.textFaint }}>{r.context_findings}</td>
                         <td style={{ padding: "9px 10px" }}>
-                          {r.verdict && (
-                            <span style={{
-                              fontSize: 10, fontFamily: "var(--font-mono)", padding: "2px 7px", borderRadius: 4,
-                              background: r.verdict === "pass" ? `${COLORS.green}15` : `${COLORS.red}15`,
-                              color: r.verdict === "pass" ? COLORS.green : COLORS.red,
-                              border: `0.5px solid ${r.verdict === "pass" ? `${COLORS.green}30` : `${COLORS.red}30`}`,
-                            }}>{r.verdict}</span>
-                          )}
+                          {r.verdict && (() => {
+                            const isClean = r.verdict === "pass" || r.verdict === "clean";
+                            return (
+                              <span style={{
+                                fontSize: 10, fontFamily: "var(--font-mono)", padding: "2px 7px", borderRadius: 4,
+                                background: isClean ? `${COLORS.green}15` : `${COLORS.red}15`,
+                                color: isClean ? COLORS.green : COLORS.red,
+                                border: `0.5px solid ${isClean ? `${COLORS.green}30` : `${COLORS.red}30`}`,
+                              }}>{isClean ? "clean" : "flagged"}</span>
+                            )
+                          })()}
                         </td>
                         <td style={{ padding: "9px 10px", fontFamily: "var(--font-mono)", fontSize: 10, color: COLORS.textFaint }}>{r.review_mode}</td>
                         <td style={{ padding: "9px 10px", fontFamily: "var(--font-mono)", fontSize: 10, color: COLORS.textFaint }}>{new Date(r.reviewed_at).toLocaleDateString()}</td>
