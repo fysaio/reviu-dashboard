@@ -1,14 +1,14 @@
 # Reviu
 
-An agentic GitHub pull request reviewer with RAG context, intent verification, and a self-serve configuration dashboard. Built as a production alternative to CodeRabbit, designed for teams that want reviewers that actually understand their codebase rather than reviewing diffs in a vacuum.
+An agentic GitHub pull request reviewer with RAG context, intent verification, and a self-serve configuration dashboard. Built as a production alternative to CodeRabbit, for teams that want a reviewer that actually understands their codebase instead of reading diffs in a vacuum.
 
 ---
 
 ## Overview
 
-Most AI code reviewers look at a diff and apply general heuristics. Reviu indexes your entire repository into a vector database before reviewing anything, so when a PR touches a file, the reviewer already has semantic context about how that file fits into the larger system. It also separately verifies whether the code change actually matches what the PR description claims to do.
+Most AI code reviewers stare at a diff and apply general heuristics. That is not good enough. Reviu indexes your entire repository into a vector database before it touches anything, so when a PR comes in, the reviewer already knows how that file fits into the larger system. It also runs a separate check to verify whether the code change actually does what the PR description says it does.
 
-Reviews are delivered as GitHub Check Runs with inline PR comments, structured into findings that were introduced by the diff versus pre-existing issues in the surrounding context. Every finding carries a confidence score, and you control the threshold per repository.
+Reviews come back as GitHub Check Runs with inline PR comments, split into findings introduced by the diff and pre-existing issues in the surrounding context that are worth surfacing. Every finding has a confidence score. You set the threshold. Anything below it never gets posted.
 
 ---
 
@@ -46,15 +46,15 @@ Celery Task (Redis queue)
 
 ### Why a job queue
 
-The GitHub webhook endpoint returns 200 immediately. All heavy work -- indexing, LLM calls, GitHub API writes -- runs in a Celery worker on a separate Railway service. This keeps webhook delivery reliable and decouples the review pipeline from request timeouts.
+GitHub expects a fast response from webhooks. The endpoint returns 200 immediately. All the heavy work, indexing, LLM calls, GitHub API writes, runs in a Celery worker on a separate Railway service. This keeps webhook delivery reliable and decouples the review pipeline from request timeouts.
 
 ### Why RAG
 
-A diff is a poor unit of context. A function that looks fine in isolation may be duplicating logic defined elsewhere, missing error handling patterns established in other modules, or violating conventions the rest of the codebase follows. Indexing the repo into pgvector lets the reviewer retrieve relevant surrounding files before forming an opinion.
+A diff is a poor unit of context. A function that looks fine in isolation might be duplicating logic from another module, missing error handling patterns established elsewhere, or violating conventions the rest of the codebase follows. Indexing the repo into pgvector first means the reviewer has actual context before forming an opinion.
 
 ### Why separate intent verification
 
-Code review and intent checking are different tasks. The intent check is a focused Gemini call that answers one question: does this code change do what the PR description says it does? Keeping it separate produces cleaner signal than asking a single prompt to do both jobs.
+Code review and intent checking are different jobs. The intent check is a focused Gemini call that answers one question: does this code change do what the PR description says it does? Keeping it separate produces cleaner signal than asking one prompt to do both at the same time.
 
 ---
 
@@ -180,9 +180,9 @@ SUPABASE_SERVICE_KEY=
 
 ## Review Modes
 
-**Junior** mode writes reviews with explanations. Each finding describes not just what the problem is but why it matters, making it useful for developers earlier in their career or working in an unfamiliar part of the codebase.
+**Junior** mode writes reviews with explanations. Each finding describes not just what the problem is but why it matters. Useful for developers earlier in their career or anyone working in an unfamiliar part of the codebase.
 
-**Senior** mode is direct and concise. Findings are brief and assume the reader can infer context. Better for experienced teams where verbose explanations add noise.
+**Senior** mode is direct and does not over-explain. Findings are brief and assume the reader can infer context. Better for experienced teams where verbose explanations just add noise.
 
 Mode is configurable per repository from the dashboard.
 
@@ -190,15 +190,15 @@ Mode is configurable per repository from the dashboard.
 
 ## Confidence Threshold
 
-Every finding produced by the reviewer is assigned a confidence score between 0 and 100. Findings below the configured threshold for that repository are suppressed before the review is posted. The default threshold is 70.
+Every finding gets a confidence score between 0 and 100. Findings below the configured threshold for that repository are suppressed before the review is posted. The default is 70.
 
-Higher thresholds reduce false positives but may miss real issues. Lower thresholds surface more findings at the cost of more noise. Teams can tune this per repository based on signal quality in practice.
+Higher thresholds mean fewer false positives but some real issues will slip through. Lower thresholds surface more findings at the cost of noise. Teams can tune this per repo based on how the signal holds up in practice.
 
 ---
 
 ## GitHub App
 
-The backend authenticates as a GitHub App rather than a personal access token. This gives it stable, installation-scoped access to repositories without tying credentials to an individual account. The App generates a fresh JWT on every request and exchanges it for a short-lived installation token.
+The backend authenticates as a GitHub App rather than a personal access token. This gives it stable, installation-scoped access to repositories without tying credentials to an individual account. It generates a fresh JWT on every request and exchanges it for a short-lived installation token.
 
 **Required permissions:** Pull requests (read/write), Contents (read), Checks (read/write)
 
@@ -208,14 +208,14 @@ The backend authenticates as a GitHub App rather than a personal access token. T
 
 ## Infrastructure
 
-The backend runs as two Railway services sharing the same codebase:
+The backend runs as two Railway services sharing the same codebase.
 
 - **Web service** handles webhook delivery and the health endpoint
 - **Worker service** runs the Celery consumer that processes review jobs
 
 Both services read from the same environment variables. Redis Cloud is the message broker between them.
 
-The dashboard runs on Vercel as a standard Next.js deployment. It communicates with Supabase directly from API routes using the service role key and never exposes it to the client.
+The dashboard runs on Vercel as a standard Next.js deployment. It talks to Supabase directly from API routes using the service role key and never exposes it to the client.
 
 ---
 
@@ -271,7 +271,7 @@ npm run dev
 
 ### Post-deployment
 
-- Set the GitHub App **Setup URL** to `https://your-vercel-domain.com/api/github/callback` -- this is where GitHub redirects users after installing the App
+- Set the GitHub App **Setup URL** to `https://your-vercel-domain.com/api/github/callback`. This is where GitHub redirects users after installing the App
 - Set the GitHub App to **Public** so other users can install it on their repositories
 
 ---
@@ -280,7 +280,7 @@ npm run dev
 
 - Eval suite against known PRs to measure false positive and false negative rates
 - Prompt tuning based on eval results
-- Support for monorepos with selective indexing by subdirectory
+- Monorepo support with selective indexing by subdirectory
 - Review history and per-finding feedback stored in Supabase
 - Public writeup covering architecture decisions, eval methodology, and results
 
