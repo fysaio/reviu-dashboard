@@ -165,21 +165,13 @@ export default function AnalyticsClient() {
           </span>
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <Link href="/dashboard" style={{
-            fontSize: 12, color: COLORS.textMuted, padding: "6px 14px",
-            border: `0.5px solid ${COLORS.border}`, borderRadius: 6,
-            display: "flex", alignItems: "center", gap: 5,
-          }}>
+          <Link href="/dashboard" className="btn btn-outline">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m15 18-6-6 6-6"/></svg>
             Dashboard
           </Link>
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
-            style={{
-              fontSize: 12, color: COLORS.textFaint, padding: "6px 14px",
-              border: `0.5px solid ${COLORS.border}`, borderRadius: 6,
-              background: "transparent",
-            }}
+            className="btn btn-danger"
           >Sign out</button>
         </div>
       </nav>

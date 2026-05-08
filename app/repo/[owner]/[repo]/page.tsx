@@ -16,6 +16,12 @@ export default function RepoSettingsPage() {
   const [threshold, setThreshold] = useState(70)
   const [enabled, setEnabled] = useState(true)
 
+  const hasChanges = settings ? (
+    mode !== (settings.review_mode || "junior") ||
+    threshold !== (settings.confidence_threshold || 70) ||
+    enabled !== (settings.enabled ?? true)
+  ) : false
+
   useEffect(() => {
     fetch(`/api/settings?repo=${repoFull}`).then(r => r.json()).then(d => {
       if (d.settings) {
@@ -34,6 +40,7 @@ export default function RepoSettingsPage() {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ repo_full_name: repoFull, review_mode: mode, confidence_threshold: threshold, enabled }),
     })
+    setSettings({ ...settings, review_mode: mode, confidence_threshold: threshold, enabled })
     setSaving(false); setSaved(true)
     setTimeout(() => setSaved(false), 2200)
   }
@@ -60,12 +67,7 @@ export default function RepoSettingsPage() {
         </Link>
         <button
           onClick={() => router.push("/dashboard")}
-          style={{
-            display: "flex", alignItems: "center", gap: 5,
-            fontSize: 12, color: "var(--text-muted)", background: "transparent",
-            border: "0.5px solid var(--border)", padding: "6px 14px",
-            borderRadius: "var(--radius-sm)",
-          }}
+          className="btn btn-outline"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m15 18-6-6 6-6"/></svg>
           Back to dashboard
@@ -182,13 +184,14 @@ export default function RepoSettingsPage() {
             {/* Save */}
             <button
               onClick={save}
-              disabled={saving}
+              disabled={saving || (!hasChanges && !saved)}
               style={{
                 padding: "13px", borderRadius: "var(--radius)", fontSize: 14, fontWeight: 700,
-                background: saved ? "rgba(34,212,106,0.08)" : "var(--accent)",
-                color: saved ? "var(--green)" : "#070A0F",
-                border: saved ? "0.5px solid rgba(34,212,106,0.25)" : "none",
-                opacity: saving ? 0.7 : 1, transition: "all 0.2s",
+                background: saved ? "rgba(34,212,106,0.08)" : (!hasChanges && !saving) ? "transparent" : "var(--accent)",
+                color: saved ? "var(--green)" : (!hasChanges && !saving) ? "var(--text-muted)" : "#070A0F",
+                border: saved ? "0.5px solid rgba(34,212,106,0.25)" : (!hasChanges && !saving) ? "0.5px solid var(--border)" : "none",
+                opacity: saving ? 0.7 : (!hasChanges && !saved) ? 0.6 : 1, transition: "all 0.2s",
+                cursor: (!hasChanges && !saved && !saving) ? "not-allowed" : "pointer",
               }}
             >
               {saving ? "Saving..." : saved ? "Saved" : "Save settings"}

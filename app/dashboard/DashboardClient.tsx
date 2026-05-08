@@ -91,21 +91,13 @@ function RepoCard({ repo, saving, onToggle }: { repo: any; saving: string | null
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: 20 }}>
           {isEnabled && <StatusBadge status={getStatus()} />}
           {isEnabled && (
-            <Link href={`/repo/${repo.owner}/${repo.name}`} style={{
-              fontSize: 12, color: "var(--text-muted)", padding: "5px 12px",
-              border: "0.5px solid var(--border)", borderRadius: "var(--radius-sm)",
-            }}>Settings</Link>
+            <Link href={`/repo/${repo.owner}/${repo.name}`} className="btn btn-outline" style={{ padding: "7px 12px" }}>Settings</Link>
           )}
           <button
             onClick={() => onToggle(repo)}
             disabled={isSaving}
-            style={{
-              padding: "7px 16px", borderRadius: "var(--radius-sm)", fontSize: 12, fontWeight: 600,
-              background: isEnabled ? "transparent" : "var(--accent)",
-              color: isEnabled ? "var(--text-muted)" : "#070A0F",
-              border: isEnabled ? "0.5px solid var(--border)" : "none",
-              opacity: isSaving ? 0.5 : 1, transition: "all 0.15s ease",
-            }}
+            className={`btn ${isEnabled ? "btn-danger" : "btn-primary"}`}
+            style={{ padding: "7px 16px", fontWeight: 600 }}
           >
             {isSaving ? "..." : isEnabled ? "Disable" : "Enable"}
           </button>
@@ -195,21 +187,13 @@ export default function DashboardClient({ session }: { session: any }) {
             <img src={session.user.image} alt="" style={{ width: 26, height: 26, borderRadius: "50%", border: "0.5px solid var(--border)" }} />
           )}
           <span style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>{session?.user?.name}</span>
-          <Link href="/analytics" style={{
-            fontSize: 12, color: "var(--text-muted)", padding: "6px 14px",
-            border: "0.5px solid var(--border)", borderRadius: "var(--radius-sm)",
-            display: "flex", alignItems: "center", gap: 5,
-          }}>
+          <Link href="/analytics" className="btn btn-analytics">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
             Analytics
           </Link>
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
-            style={{
-              fontSize: 12, color: "var(--text-faint)", padding: "6px 14px",
-              border: "0.5px solid var(--border)", borderRadius: "var(--radius-sm)",
-              background: "transparent",
-            }}
+            className="btn btn-danger"
           >Sign out</button>
         </div>
       </nav>
