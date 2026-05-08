@@ -346,7 +346,7 @@ export default function AnalyticsClient() {
                   <thead>
                     <tr style={{ borderBottom: `0.5px solid ${COLORS.border}` }}>
                       {["Repo", "PR", "Diff", "Context", "Verdict", "Mode", "Date"].map(h => (
-                        <th key={h} style={{ textAlign: "left", padding: "8px 10px", fontFamily: "var(--font-mono)", fontSize: 10, color: COLORS.textFaint, fontWeight: 500, letterSpacing: "1px", textTransform: "uppercase" }}>{h}</th>
+                        <th key={h} style={{ textAlign: "left", padding: "8px 10px", fontFamily: "var(--font-mono)", fontSize: 10, color: COLORS.textDim, fontWeight: 600, letterSpacing: "1px", textTransform: "uppercase" }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -358,8 +358,8 @@ export default function AnalyticsClient() {
                           <span style={{ color: COLORS.purple, fontFamily: "var(--font-mono)" }}>#{r.pr_number}</span>
                           {r.pr_title && <span style={{ color: COLORS.textDim, marginLeft: 6 }}>{r.pr_title.slice(0, 40)}{r.pr_title.length > 40 ? "…" : ""}</span>}
                         </td>
-                        <td style={{ padding: "9px 10px", fontFamily: "var(--font-mono)", color: r.diff_findings > 0 ? COLORS.red : COLORS.textFaint }}>{r.diff_findings}</td>
-                        <td style={{ padding: "9px 10px", fontFamily: "var(--font-mono)", color: r.context_findings > 0 ? COLORS.orange : COLORS.textFaint }}>{r.context_findings}</td>
+                        <td style={{ padding: "9px 10px", fontFamily: "var(--font-mono)", color: r.diff_findings > 0 ? COLORS.red : COLORS.textMuted }}>{r.diff_findings}</td>
+                        <td style={{ padding: "9px 10px", fontFamily: "var(--font-mono)", color: r.context_findings > 0 ? COLORS.orange : COLORS.textMuted }}>{r.context_findings}</td>
                         <td style={{ padding: "9px 10px" }}>
                           {r.verdict && (() => {
                             const isClean = r.verdict === "pass" || r.verdict === "clean";
@@ -373,8 +373,8 @@ export default function AnalyticsClient() {
                             )
                           })()}
                         </td>
-                        <td style={{ padding: "9px 10px", fontFamily: "var(--font-mono)", fontSize: 10, color: COLORS.textFaint }}>{r.review_mode}</td>
-                        <td style={{ padding: "9px 10px", fontFamily: "var(--font-mono)", fontSize: 10, color: COLORS.textFaint }}>{new Date(r.reviewed_at).toLocaleDateString()}</td>
+                        <td style={{ padding: "9px 10px", fontFamily: "var(--font-mono)", fontSize: 10, color: COLORS.textDim }}>{r.review_mode}</td>
+                        <td style={{ padding: "9px 10px", fontFamily: "var(--font-mono)", fontSize: 10, color: COLORS.textDim }}>{new Date(r.reviewed_at).toLocaleDateString()}</td>
                       </tr>
                     ))}
                   </tbody>
